@@ -95,7 +95,7 @@ bool CConfig::createFile()
 				return false;
 			}
 
-			g_pLog->debug("Created config directory at %s\n");
+			g_pLog->debug("Created config directory at %s\n", dir.c_str());
 		}
 
 		FILE* file = fopen(path.c_str(), "w");
@@ -259,7 +259,7 @@ bool CConfig::loadSettings()
 					denuvoGames[steamId].emplace(appId);
 
 					//Again, not loggin SteamId because of privacy
-					g_pLog->debug("Added DenuvoGame %u\n", appId, steamId);
+					g_pLog->debug("Added DenuvoGame %u\n", appId);
 				}
 			}
 			catch (...)
