@@ -160,7 +160,17 @@ static uint32_t hkCAPIJob_RequestUserStats(void* a0)
 		ret
 	);
 
-	return 3;
+	switch (ret)
+	{
+		//1 = Success
+		case 1:
+			return ret;
+
+		//2 = Failed
+		//3 = No Connection
+		default:
+			return 3;
+	}
 }
 
 static bool applistRequested = false;
