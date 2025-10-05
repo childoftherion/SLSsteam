@@ -57,6 +57,15 @@ static const char* defaultConfig =
 "WarnHashMissmatch: no\n\n"
 "#Notify when SLSsteam is done initializing\n"
 "NotifyInit: yes\n\n"
+"#Log levels:\n"
+"#Once = 0\n"
+"#Debug = 1\n"
+"#Info = 2\n"
+"#NotifyShort = 3\n"
+"#NotifyLong = 4\n"
+"#Warn = 5\n"
+"#None = 6\n"
+"LogLevel: 2\n\n"
 "#Logs all calls to Steamworks (this makes the logfile huge! Only useful for debugging/analyzing\n"
 "ExtendedLogging: no";
 
@@ -147,6 +156,7 @@ bool CConfig::loadSettings()
 	warnHashMissmatch = getSetting<bool>(node, "WarnHashMissmatch", false);
 	notifyInit = getSetting<bool>(node, "NotifyInit", true);
 	extendedLogging = getSetting<bool>(node, "ExtendedLogging", false);
+	logLevel = getSetting<unsigned int>(node, "LogLevel", 2);
 	denuvoSpoof = getSetting<bool>(node, "DenuvoSpoof", false);
 
 	//TODO: Create smart logging function to log them automatically via getSetting

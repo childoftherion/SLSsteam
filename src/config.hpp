@@ -38,6 +38,7 @@ public:
 	bool notifications;
 	bool warnHashMissmatch;
 	bool notifyInit;
+	unsigned int logLevel;
 	bool extendedLogging;
 
 	std::string getDir();
