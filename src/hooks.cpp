@@ -560,6 +560,30 @@ static bool hkClientUser_GetEncryptedAppTicket(void* pClientUser, void* pTicket,
 	return ret;
 }
 
+__attribute__((stdcall))
+static uint32_t hkIClientUser_GetSteamId(uint32_t steamId)
+{
+	if (!g_currentSteamId)
+	{
+		g_currentSteamId = steamId;
+	}
+
+	CEncryptedAppTicket ticket = Ticket::getCachedEncryptedTicket(g_pClientUtils->getAppId());
+	
+	if (ticket.size && ticket.steamId)
+	{
+		steamId = ticket.steamId;
+	}
+	else if (Ticket::steamIdSpoof)
+	{
+		//One time spoof should be enough for this type
+		steamId = Ticket::steamIdSpoof;
+		Ticket::steamIdSpoof = 0;
+	}
+
+	return steamId;
+}
+
 static uint32_t hkClientUser_GetSubscribedApps(void* pClientUser, uint32_t* pAppList, size_t size, bool a3)
 {
 	uint32_t count = Hooks::IClientUser_GetSubscribedApps.tramp.fn(pClientUser, pAppList, size, a3);
@@ -619,30 +643,6 @@ static void patchRetn(lm_address_t address)
 	LM_ProtMemory(address, 1, LM_PROT_XRW, &oldProt); //LM_PROT_W Should be enough, but just in case something tries to execute it inbetween us setting the prot and writing to it
 	LM_WriteMemory(address, &retn, 1);
 	LM_ProtMemory(address, 1, oldProt, LM_NULL);
-}
-
-__attribute__((stdcall))
-static uint32_t hkIClientUser_GetSteamId(uint32_t steamId)
-{
-	if (!g_currentSteamId)
-	{
-		g_currentSteamId = steamId;
-	}
-
-	CEncryptedAppTicket ticket = Ticket::getCachedEncryptedTicket(g_pClientUtils->getAppId());
-	
-	if (ticket.size && ticket.steamId)
-	{
-		steamId = ticket.steamId;
-	}
-	else if (Ticket::steamIdSpoof)
-	{
-		//One time spoof should be enough for this type
-		steamId = Ticket::steamIdSpoof;
-		Ticket::steamIdSpoof = 0;
-	}
-
-	return steamId;
 }
 
 static lm_address_t hkNakedGetSteamId;
