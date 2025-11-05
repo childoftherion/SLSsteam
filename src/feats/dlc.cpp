@@ -20,7 +20,9 @@ bool DLC::isAppDlcInstalled(uint32_t appId, uint32_t dlcId)
 {
 	//Do not pretend things are installed while downloading Apps, otherwise downloads will break for some of them
 	auto state = g_pClientAppManager->getAppInstallState(appId);
-	if (state & APPSTATE_DOWNLOADING || state & APPSTATE_INSTALLING)
+	//TODO: Adjust to newly dumped EAppState
+	//Afaik we can't just check for FULLY_INSTALLED here. So we need to filter some states
+	if (state & APPSTATE_UPDATE_REQUIRED || state & APPSTATE_UPDATE_PAUSED)
 	{
 		g_pLog->once("Skipping DlcId %u because AppId %u has AppState %i\n", dlcId, appId, state);
 		return false;
