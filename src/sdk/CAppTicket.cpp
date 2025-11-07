@@ -1,7 +1,5 @@
 #include "CAppTicket.hpp"
 
-#include "../log.hpp"
-
 uint32_t CAppTicket::getSize() const
 {
 	for (int i = sizeof(CAppTicket); i >= 0; i--)
