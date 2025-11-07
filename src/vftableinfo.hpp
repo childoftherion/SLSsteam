@@ -2,6 +2,11 @@
 
 namespace VFTIndexes
 {
+	namespace IClientEngine
+	{
+		constexpr int GetClientUser = 7;
+	}
+
 	namespace IClientApps
 	{
 		constexpr int RequestAppInfoUpdate = 7;
