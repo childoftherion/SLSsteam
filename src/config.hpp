@@ -26,6 +26,7 @@ public:
 	std::unordered_set<uint32_t> appIds;
 	std::unordered_set<uint32_t> addedAppIds;
 	std::unordered_map<uint32_t, CDlcData> dlcData;
+	std::unordered_set<uint32_t> fakeOffline;
 
 	//SteamId, AppIds tuple
 	std::unordered_map<uint32_t, std::unordered_set<uint32_t>> denuvoGames;
@@ -36,7 +37,6 @@ public:
 	bool useWhiteList;
 	bool automaticFilter;
 	bool playNotOwnedGames;
-	bool fakeOffline;
 	bool safeMode;
 	bool notifications;
 	bool warnHashMissmatch;

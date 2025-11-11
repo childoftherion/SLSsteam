@@ -43,8 +43,8 @@ static const char* defaultConfig =
 "#Extra Data for Dlcs belonging to a specific AppId. Only needed\n"
 "#when the App you're playing is hit by Steams 64 DLC limit\n"
 "DlcData:\n\n"
-"#Fake Steam being offline for AdditionalApps (also affects stuff unlocked by PlayNotOwnedGames)\n"
-"FakeOffline: no\n\n"
+"#Fake Steam being offline for specified AppIds. Same format as AppIds\n"
+"FakeOffline: \n\n"
 "#Blocks games from unlocking on wrong accounts\n"
 "DenuvoGames:\n\n"
 "#Spoof Denuvo Games owner instead of blocking them\n"
@@ -156,7 +156,6 @@ bool CConfig::loadSettings()
 	useWhiteList = getSetting<bool>(node, "UseWhitelist", false);
 	automaticFilter = getSetting<bool>(node, "AutoFilterList", true);
 	playNotOwnedGames = getSetting<bool>(node, "PlayNotOwnedGames", false);
-	fakeOffline = getSetting<bool>(node, "FakeOffline", false);
 	safeMode = getSetting<bool>(node, "SafeMode", false);
 	notifications = getSetting<bool>(node, "Notifications", true);
 	warnHashMissmatch = getSetting<bool>(node, "WarnHashMissmatch", false);
@@ -171,7 +170,6 @@ bool CConfig::loadSettings()
 	g_pLog->info("UseWhitelist: %i\n", useWhiteList);
 	g_pLog->info("AutoFilterList: %i\n", automaticFilter);
 	g_pLog->info("PlayNotOwnedGames: %i\n", playNotOwnedGames);
-	g_pLog->info("FakeOffline: %i\n", fakeOffline);
 	g_pLog->info("SafeMode: %i\n", safeMode);
 	g_pLog->info("Notifications: %i\n", notifications);
 	g_pLog->info("WarnHashMissmatch: %i\n", warnHashMissmatch);
@@ -224,6 +222,28 @@ bool CConfig::loadSettings()
 	else
 	{
 		g_pLog->notify("Missing AdditionalApps entry in config!");
+	}
+
+	const auto fakeOfflineNode = node["FakeOffline"];
+	if (fakeOfflineNode )
+	{
+		for(auto& appIdNode : fakeOfflineNode)
+		{
+			try
+			{
+				uint32_t appId = appIdNode.as<uint32_t>();
+				this->fakeOffline.emplace(appId);
+				g_pLog->info("Added %u to FakeOffline\n", appId);
+			}
+			catch(...)
+			{
+				g_pLog->notify("Failed to parse %s in FakeOffline!", appIdNode.as<std::string>().c_str());
+			}
+		}
+	}
+	else
+	{
+		g_pLog->notify("Missing FakeOffline entry in config!");
 	}
 
 	const auto dlcDataNode = node["DlcData"];

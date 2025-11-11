@@ -39,6 +39,7 @@ namespace VFTIndexes
 
 	namespace IClientUtils
 	{
+		constexpr int GetOfflineMode = 17;
 		constexpr int GetAppId = 19;
 	}
 }

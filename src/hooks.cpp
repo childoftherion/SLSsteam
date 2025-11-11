@@ -4,14 +4,12 @@
 #include "log.hpp"
 #include "memhlp.hpp"
 #include "patterns.hpp"
-#include "sdk/CProtoBufMsgBase.hpp"
 #include "vftableinfo.hpp"
-
-#include "libmem/libmem.h"
 
 #include "sdk/CAppOwnershipInfo.hpp"
 #include "sdk/CAppTicket.hpp"
 #include "sdk/CCallback.hpp"
+#include "sdk/CProtoBufMsgBase.hpp"
 #include "sdk/IClientUser.hpp"
 #include "sdk/IClientApps.hpp"
 #include "sdk/IClientAppManager.hpp"
@@ -19,15 +17,16 @@
 #include "sdk/IClientUser.hpp"
 
 #include "feats/apps.hpp"
+#include "feats/fakeoffline.hpp"
 #include "feats/dlc.hpp"
 #include "feats/ticket.hpp"
+
+#include "libmem/libmem.h"
 
 #include <cstddef>
 #include <cstdint>
 #include <cstdio>
 #include <cstring>
-#include <iterator>
-#include <map>
 #include <memory>
 #include <pthread.h>
 #include <strings.h>
@@ -423,12 +422,27 @@ static void hkClientRemoteStorage_PipeLoop(void* pClientRemoteStorage, void* a1,
 	Hooks::IClientRemoteStorage_PipeLoop.originalFn.fn(pClientRemoteStorage, a1, a2, a3);
 }
 
+static bool hkClientUtils_GetOfflineMode(void* pClientUtils)
+{
+	const bool ret = Hooks::IClientUtils_GetOfflineMode.originalFn.fn(pClientUtils);
+
+	if (FakeOffline::shouldFakeOffline())
+	{
+		return true;
+	}
+
+	return ret;
+}
+
 static void hkClientUtils_PipeLoop(void* pClientUtils, void* a1, void* a2, void* a3)
 {
 	g_pClientUtils = reinterpret_cast<IClientUtils*>(pClientUtils);
 
 	std::shared_ptr<lm_vmt_t> vft = std::make_shared<lm_vmt_t>();
 	LM_VmtNew(*reinterpret_cast<lm_address_t**>(pClientUtils), vft.get());
+
+	Hooks::IClientUtils_GetOfflineMode.setup(vft, VFTIndexes::IClientUtils::GetOfflineMode, hkClientUtils_GetOfflineMode);
+	Hooks::IClientUtils_GetOfflineMode.place();
 
 	g_pLog->debug("IClientUtils->vft at %p\n", vft->vtable);
 
@@ -469,14 +483,9 @@ static bool hkClientUser_BLoggedOn(void* pClientUser)
 	//	ret
 	//);
 	
-	if (g_config.fakeOffline && g_pClientUtils)
+	if (FakeOffline::shouldFakeOffline())
 	{
-		const uint32_t appId = g_pClientUtils->getAppId();
-		if (g_config.isAddedAppId(appId))
-		{
-			g_pLog->once("Faking no connection for %u\n", appId);
-			return false;
-		}
+		return false;
 	}
 
 	return ret;
@@ -873,6 +882,8 @@ namespace Hooks
 	VFTHook<IClientApps_GetDLCCount_t> IClientApps_GetDLCCount("IClientApps::GetDLCCount");
 
 	VFTHook<IClientRemoteStorage_IsCloudEnabledForApp_t> IClientRemoteStorage_IsCloudEnabledForApp("IClientRemoteStorage::IsCloudEnabledForApp");
+
+	VFTHook<IClientUtils_GetOfflineMode_t> IClientUtils_GetOfflineMode("IClientUtils::GetOfflineMode");
 
 	lm_address_t IClientUser_GetSteamId;
 }

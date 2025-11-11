@@ -88,6 +88,8 @@ namespace Hooks
 	typedef uint8_t(*IClientUser_IsUserSubscribedAppInTicket_t)(void*, uint32_t, uint32_t, uint32_t, uint32_t);
 	typedef bool(*IClientUser_RequiresLegacyCDKey_t)(void*, uint32_t, uint32_t*);
 
+	typedef bool(*IClientUtils_GetOfflineMode_t)(void*);
+
 	extern DetourHook<LogSteamPipeCall_t> LogSteamPipeCall;
 	extern DetourHook<ParseProtoBufResponse_t> ParseProtoBufResponse;
 
@@ -127,6 +129,8 @@ namespace Hooks
 	extern VFTHook<IClientApps_GetDLCCount_t> IClientApps_GetDLCCount;
 
 	extern VFTHook<IClientRemoteStorage_IsCloudEnabledForApp_t> IClientRemoteStorage_IsCloudEnabledForApp;
+
+	extern VFTHook<IClientUtils_GetOfflineMode_t> IClientUtils_GetOfflineMode;
 
 	extern lm_address_t IClientUser_GetSteamId;
 
