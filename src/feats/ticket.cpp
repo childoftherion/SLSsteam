@@ -3,6 +3,7 @@
 #include "../config.hpp"
 #include "../globals.hpp"
 
+#include "../sdk/CUser.hpp"
 #include "../sdk/IClientUtils.hpp"
 #include "../sdk/EResult.hpp"
 
@@ -88,37 +89,27 @@ bool Ticket::saveTicketToCache(uint32_t appId, void* ticketData, uint32_t ticket
 
 void Ticket::recvAppOwnershipTicketResponse(CMsgAppOwnershipTicketResponse* resp)
 {
+	if (resp->result != ERESULT_OK)
+	{
+		return;
+	}
+
 	//Very weird way to store data, thanks GCC
 	//TODO: Maybe dig in further to improve my classes
 	uint32_t* pSize = (reinterpret_cast<uint32_t*>(*resp->ppTicket) - 3);
+	saveTicketToCache(resp->appId, *resp->ppTicket, *pSize);
+}
 
-	switch (resp->result)
+void Ticket::launchApp(uint32_t appId)
+{
+	auto ticket = getCachedTicket(appId);
+	if (!ticket.steamId)
 	{
-
-		case ERESULT_OK:
-			saveTicketToCache(resp->appId, *resp->ppTicket, *pSize);
-			break;
-
-		case ERESULT_ACCESS_DENIED:
-			auto cached = getCachedTicket(resp->appId);
-			if (!cached.steamId)
-			{
-				break;
-			}
-
-			const uint32_t size = cached.getSize();
-
-			//cached.issueTime = std::chrono::duration_cast<std::chrono::seconds>
-			//(
-			//	std::chrono::system_clock::now().time_since_epoch()
-			//).count();
-			//TODO: Somehow resign ticket after updating issue time
-
-			memcpy(*resp->ppTicket, &cached, 0x400);
-			*pSize = size;
-			resp->result = ERESULT_OK;
-			break;
+		return;
 	}
+
+	g_pUser->updateAppOwnershipTicket(appId, reinterpret_cast<void*>(&ticket), ticket.getSize());
+	g_pLog->once("Force loaded AppOwnershipTicket for %i\n", appId);
 }
 
 void Ticket::getTicketOwnershipExtendedData(uint32_t appId)

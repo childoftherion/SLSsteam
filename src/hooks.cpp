@@ -4,6 +4,7 @@
 #include "log.hpp"
 #include "memhlp.hpp"
 #include "patterns.hpp"
+#include "sdk/CUser.hpp"
 #include "vftableinfo.hpp"
 
 #include "sdk/CAppOwnershipInfo.hpp"
@@ -230,11 +231,7 @@ static void* hkClientAppManager_LaunchApp(void* pClientAppManager, uint32_t* pAp
 		);
 
 		Apps::launchApp(*pAppId);
-		if(!g_pClientUser->isLoggedOn() || g_pClientUtils->getOfflineMode())
-		{
-			g_pClientUser->updateOwnershipInfo(*pAppId, false);
-			g_pLog->once("Force updateOwnershipInfo for %i\n", *pAppId);
-		}
+		Ticket::launchApp(*pAppId);
 	}
 
 	//Do not do anything in post! Otherwise App launching will break
@@ -522,9 +519,16 @@ static uint32_t hkClientUser_BUpdateOwnershipInfo(void* pClientUser, uint32_t ap
 	return ret;
 }
 
+//TODO: Move to proper class
 __attribute__((hot))
 static bool hkClientUser_CheckAppOwnership(void* pClientUser, uint32_t appId, CAppOwnershipInfo* pOwnershipInfo)
 {
+	if (!g_pUser)
+	{
+		//TODO: Grab properly
+		g_pUser = reinterpret_cast<CUser*>(pClientUser);
+	}
+
 	const bool ret = Hooks::IClientUser_CheckAppOwnership.tramp.fn(pClientUser, appId, pOwnershipInfo);
 
 	//Do not log pOwnershipInfo because it gets deleted very quickly, so it's pretty much useless in the logs
