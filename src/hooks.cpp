@@ -228,7 +228,13 @@ static void* hkClientAppManager_LaunchApp(void* pClientAppManager, uint32_t* pAp
 			a3,
 			a4
 		);
+
 		Apps::launchApp(*pAppId);
+		if(!g_pClientUser->isLoggedOn() || g_pClientUtils->getOfflineMode())
+		{
+			g_pClientUser->updateOwnershipInfo(*pAppId, false);
+			g_pLog->once("Force updateOwnershipInfo for %i\n", *pAppId);
+		}
 	}
 
 	//Do not do anything in post! Otherwise App launching will break
