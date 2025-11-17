@@ -95,7 +95,7 @@ public:
 				//TODO: Find better way to log shit
 				if (std::is_same_v<T, uint32_t>)
 				{
-					g_pLog->debug("Added %u to %s\n", val, name);
+					g_pLog->info("Added %u to %s\n", val, name);
 				}
 			}
 			catch(...)

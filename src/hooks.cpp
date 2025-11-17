@@ -618,7 +618,7 @@ static bool hkClientUser_BLoggedOn(void* pClientUser)
 	return ret;
 }
 
-static uint32_t hkClientUser_BUpdateOwnershipInfo(void* pClientUser, uint32_t appId, bool staleOnly)
+static uint32_t hkClientUser_BUpdateOwnershipTicket(void* pClientUser, uint32_t appId, bool staleOnly)
 {
 	const auto cached = Ticket::getCachedTicket(appId);
 	if (!cached.steamId)
@@ -627,13 +627,13 @@ static uint32_t hkClientUser_BUpdateOwnershipInfo(void* pClientUser, uint32_t ap
 		g_pLog->debug("Force re-requesting OwnershipInfo for %u\n", appId);
 	}
 
-	const uint32_t ret = Hooks::IClientUser_BUpdateAppOwnershipInfo.tramp.fn(pClientUser, appId, staleOnly);
+	const uint32_t ret = Hooks::IClientUser_BUpdateAppOwnershipTicket.tramp.fn(pClientUser, appId, staleOnly);
 
 	g_pLog->debug
 	(
 		"%s(%p, %u, %i) -> %u\n",
 
-		Hooks::IClientUser_BUpdateAppOwnershipInfo.name.c_str(),
+		Hooks::IClientUser_BUpdateAppOwnershipTicket.name.c_str(),
 		pClientUser,
 		appId,
 		staleOnly,
@@ -897,7 +897,7 @@ namespace Hooks
 
 	DetourHook<IClientUser_BIsSubscribedApp_t> IClientUser_BIsSubscribedApp;
 	DetourHook<IClientUser_BLoggedOn_t> IClientUser_BLoggedOn;
-	DetourHook<IClientUser_BUpdateAppOwnershipInfo_t> IClientUser_BUpdateAppOwnershipInfo;
+	DetourHook<IClientUser_BUpdateAppOwnershipTicket_t> IClientUser_BUpdateAppOwnershipTicket;
 	DetourHook<IClientUser_GetAppOwnershipTicketExtendedData_t> IClientUser_GetAppOwnershipTicketExtendedData;
 	DetourHook<IClientUser_IsUserSubscribedAppInTicket_t> IClientUser_IsUserSubscribedAppInTicket;
 	DetourHook<IClientUser_RequiresLegacyCDKey_t> IClientUser_RequiresLegacyCDKey;
@@ -944,7 +944,7 @@ bool Hooks::setup()
 
 		&& IClientUser_BIsSubscribedApp.setup(Patterns::IClientUser::BIsSubscribedApp, &hkClientUser_BIsSubscribedApp)
 		&& IClientUser_BLoggedOn.setup(Patterns::IClientUser::BLoggedOn, &hkClientUser_BLoggedOn)
-		&& IClientUser_BUpdateAppOwnershipInfo.setup(Patterns::IClientUser::BUpdateAppOwnershipInfo, hkClientUser_BUpdateOwnershipInfo)
+		&& IClientUser_BUpdateAppOwnershipTicket.setup(Patterns::IClientUser::BUpdateAppOwnershipTicket, hkClientUser_BUpdateOwnershipTicket)
 		&& IClientUser_GetAppOwnershipTicketExtendedData.setup(Patterns::IClientUser::GetAppOwnershipTicketExtendedData, hkClientUser_GetAppOwnershipTicketExtendedData)
 		&& IClientUser_IsUserSubscribedAppInTicket.setup(Patterns::IClientUser::IsUserSubscribedAppInTicket, &hkClientUser_IsUserSubscribedAppInTicket)
 		&& IClientUser_RequiresLegacyCDKey.setup(Patterns::IClientUser::RequiresLegacyCDKey, hkClientUser_RequiresLegacyCDKey);
@@ -983,7 +983,7 @@ void Hooks::place()
 
 	IClientUser_BIsSubscribedApp.place();
 	IClientUser_BLoggedOn.place();
-	IClientUser_BUpdateAppOwnershipInfo.place();
+	IClientUser_BUpdateAppOwnershipTicket.place();
 	IClientUser_GetAppOwnershipTicketExtendedData.place();
 	IClientUser_IsUserSubscribedAppInTicket.place();
 	IClientUser_RequiresLegacyCDKey.place();
@@ -1014,7 +1014,7 @@ void Hooks::remove()
 
 	IClientUser_BIsSubscribedApp.remove();
 	IClientUser_BLoggedOn.remove();
-	IClientUser_BUpdateAppOwnershipInfo.remove();
+	IClientUser_BUpdateAppOwnershipTicket.remove();
 	IClientUser_GetAppOwnershipTicketExtendedData.remove();
 	IClientUser_IsUserSubscribedAppInTicket.remove();
 	IClientUser_RequiresLegacyCDKey.remove();

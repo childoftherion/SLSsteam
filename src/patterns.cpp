@@ -184,9 +184,9 @@ namespace Patterns
 			"E9 ? ? ? ? ? ? ? ? ? ? 5B 5E 5F FF E0",
 			SigFollowMode::Relative
 		};
-		Pattern_t BUpdateAppOwnershipInfo
+		Pattern_t BUpdateAppOwnershipTicket
 		{
-			"IClientUser::BUpdateAppOwnershipInfo",
+			"IClientUser::BUpdateAppOwnershipTicket",
 			"83 EC 0C 89 F3 8B 7D ? FF 30 E8 ? ? ? ? 83 C4 10 83 FF 01 77 ? 84 C0 75 ? 80 7D ? 00 74 ? 80 7D ? 00 0F 84 ? ? ? ? 8D 65",
 			SigFollowMode::PrologueUpwards,
 			std::vector<uint8_t> { 0x56, 0x57, 0xe5, 0x89, 0x55 }
