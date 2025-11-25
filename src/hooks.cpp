@@ -321,7 +321,10 @@ static bool hkUser_GetEncryptedAppTicket(void* pClientUser, void* pTicket, uint3
 static uint32_t hkUser_GetSubscribedApps(void* pClientUser, uint32_t* pAppList, size_t size, bool a3)
 {
 	uint32_t count = Hooks::CUser_GetSubscribedApps.tramp.fn(pClientUser, pAppList, size, a3);
-	g_pLog->once
+
+	Apps::getSubscribedApps(pAppList, size, count);
+
+	g_pLog->debug
 	(
 		"%s(%p, %p, %i, %i) -> %i\n",
 
@@ -332,8 +335,6 @@ static uint32_t hkUser_GetSubscribedApps(void* pClientUser, uint32_t* pAppList, 
 		a3,
 		count
 	);
-
-	Apps::getSubscribedApps(pAppList, size, count);
 
 	return count;
 }

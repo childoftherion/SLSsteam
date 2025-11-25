@@ -8,7 +8,6 @@
 #include <memory>
 #include <openssl/sha.h>
 #include <sstream>
-#include <string_view>
 #include <unordered_set>
 
 enum class LogLevel : unsigned int
@@ -25,7 +24,7 @@ enum class LogLevel : unsigned int
 class CLog
 {
 	std::ofstream ofstream;
-	std::unordered_set<std::string_view> msgCache;
+	std::unordered_set<char*> msgCache;
 
 	constexpr const char* logLvlToStr(LogLevel& lvl)
 	{
@@ -62,25 +61,25 @@ class CLog
 		char* formatted = reinterpret_cast<char*>(malloc(size));
 		snprintf(formatted, size, msg, args...);
 
-		std::string_view str(formatted);
-		std::stringstream notifySS;
-
+		bool freeFormatted = true;
 		if (lvl == LogLevel::Once)
 		{
 			//Can't use match functions from unordered_set because it's to unprecise.
 			//We could replace it with our own if we deem it necessary though
-			//Also we do not use const char* anymore since that started crashing some time ago
-			///TODO: Investigate
 			for(auto& msg : msgCache)
 			{
-				if (str == msg)
+				if (strcmp(msg, formatted) == 0)
 				{
-					goto clean;
+					free(formatted);
+					return;
 				}
 			}
 
-			msgCache.emplace(str);
+			msgCache.emplace(formatted);
+			freeFormatted = false;
 		}
+
+		std::stringstream notifySS;
 
 		switch(lvl)
 		{
@@ -111,9 +110,10 @@ class CLog
 		}
 
 		ofstream.flush();
-
-	clean:
-		free(formatted);
+		if (freeFormatted)
+		{
+			free(formatted);
+		}
 	}
 
 public:

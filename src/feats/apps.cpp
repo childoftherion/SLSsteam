@@ -59,7 +59,10 @@ bool Apps::checkAppOwnership(uint32_t appId, CAppOwnershipInfo* pInfo)
 		//Seems to do nothing in particular, some dlc have this as 1 so I uncomented this for now. Might be free stuff?
 		//pOwnershipInfo->field27_0x36 = 1;
 
-		g_config.addAdditionalAppId(appId);
+		//This stopped working after some steam update!
+		//Now GetSubscribedApps will only get called once and then the amount of Apps returned
+		//will be stored somewhere instead of calling it over and over again.
+		//g_config.addAdditionalAppId(appId);
 	}
 
 	//Returning false after we modify data shouldn't cause any problems because it should just get discarded
