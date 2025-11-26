@@ -36,6 +36,9 @@ uint32_t FakeAppIds::getRealAppId()
 
 void FakeAppIds::setAppIdForCurrentPipe(uint32_t& appId)
 {
+	//Keep track of every AppId, for various reasons
+	fakeAppIdMap[*g_pClientUtils->getPipeIndex()] = appId;
+
 	//Do not change Steam Client itself (AppId 0)
 	if (!appId)
 	{
@@ -46,8 +49,6 @@ void FakeAppIds::setAppIdForCurrentPipe(uint32_t& appId)
 	if (newAppId)
 	{
 		g_pLog->once("Changing AppId of %u\n", appId);
-		fakeAppIdMap[*g_pClientUtils->getPipeIndex()] = appId;
-
 		appId = newAppId;
 	}
 }
@@ -55,14 +56,16 @@ void FakeAppIds::setAppIdForCurrentPipe(uint32_t& appId)
 void FakeAppIds::pipeLoop(bool post)
 {
 	uint32_t appId = getRealAppId();
-	if (!appId)
+	uint32_t fakeAppId = getFakeAppId(appId);
+
+	if (!appId || !fakeAppId || appId == fakeAppId)
 	{
 		return;
 	}
 
 	if (post)
 	{
-		appId = getFakeAppId(appId);
+		appId = fakeAppId;
 	}
 
 	g_pLog->debug("Setting AppId to %u in pipe %p\n", appId, *g_pClientUtils->getPipeIndex());
