@@ -12,13 +12,19 @@ depends=("steam"
 		"lib32-glibc"
 		"lib32-gcc-libs")
 
-optdepends=("steam-native")
+optdepends=("steam-native"
+			"ccache: Speeds up compilation"
+			"dotnet-runtime: sls-ticket-generator")
 
 provides=("slssteam")
 conflicts=("slssteam-git")
 
 source=("https://github.com/AceSLS/SLSsteam/archive/refs/tags/$pkgver.tar.gz")
-makedepends=("gcc")
+makedepends=("gcc"
+			"dotnet-sdk: Building ticket-generator")
+
+#Disable stripping to not mess up disturb ticket-grabber
+options=(!strip)
 
 sha256sums=('9d1ceb3827bc7a3fea14090d29b951d3b1025357b11a6cc0e7a3afb553f29e3c')
 validpgpkeys=("63AB8F4BF8A62EEEB8D8C7584410F8CF7129B2D6")
@@ -26,6 +32,9 @@ validpgpkeys=("63AB8F4BF8A62EEEB8D8C7584410F8CF7129B2D6")
 build() {
 	cd "$srcdir/SLSsteam-$pkgver"
 	make
+
+	cd "$srcdir/SLSsteam/tools/ticket-grabber"
+	./build.sh
 }
 
 package() {
@@ -35,4 +44,7 @@ package() {
 	install -D "$srcdir/SLSsteam-$pkgver/res/SLSsteam.desktop" "$pkgdir/usr/share/applications/SLSsteam.desktop"
 	install -D "$srcdir/SLSsteam-$pkgver/res/SLSsteam-native.desktop" "$pkgdir/usr/share/applications/SLSsteam-native.desktop"
 	install -D "$srcdir/SLSsteam-$pkgver/res/logo.png" "$pkgdir/usr/share/pixmaps/SLSsteam.png"
+
+	#Disabled until dev reaches main
+	#install -D "$srcdir/SLSsteam-$pkgver/tools/ticket-grabber/bin/Release/net9.0/linux-x64/publish/ticket-grabber" "$pkgdir/usr/bin/sls-ticket-grabber"
 }

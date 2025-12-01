@@ -13,15 +13,19 @@ depends=("steam"
 		"lib32-gcc-libs")
 
 optdepends=("steam-native"
-			"ccache")
+			"ccache: Speeds up compilation"
+			"dotnet-runtime: sls-ticket-generator")
 
 provides=("slssteam")
 conflicts=("slssteam")
 
-
 source=("git+$url#branch=dev")
 makedepends=("git"
-			"gcc")
+			"gcc"
+			"dotnet-sdk: Building ticket-generator")
+
+#Disable stripping to not mess up disturb ticket-grabber
+options=(!strip)
 
 sha256sums=('SKIP')
 validpgpkeys=("63AB8F4BF8A62EEEB8D8C7584410F8CF7129B2D6")
@@ -34,6 +38,9 @@ pkgver() {
 build() {
 	cd "$srcdir/SLSsteam"
 	make
+
+	cd "$srcdir/SLSsteam/tools/ticket-grabber"
+	./build.sh
 }
 
 package() {
@@ -44,4 +51,6 @@ package() {
 	install -D "$srcdir/SLSsteam/res/SLSsteam.desktop" "$pkgdir/usr/share/applications/SLSsteam.desktop"
 	install -D "$srcdir/SLSsteam/res/SLSsteam-native.desktop" "$pkgdir/usr/share/applications/SLSsteam-native.desktop"
 	install -D "$srcdir/SLSsteam/res/logo.png" "$pkgdir/usr/share/pixmaps/SLSsteam.png"
+
+	install -D "$srcdir/SLSsteam/tools/ticket-grabber/bin/Release/net9.0/linux-x64/publish/ticket-grabber" "$pkgdir/usr/bin/sls-ticket-grabber"
 }
