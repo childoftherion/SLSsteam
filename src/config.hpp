@@ -33,7 +33,6 @@ public:
 	//SteamId, AppIds tuple
 	std::unordered_map<uint32_t, std::unordered_set<uint32_t>> denuvoGames;
 	bool blockEncryptedAppTickets;
-	bool denuvoSpoof;
 
 	bool disableFamilyLock;
 	bool useWhiteList;

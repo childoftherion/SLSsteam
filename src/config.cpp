@@ -54,8 +54,6 @@ static const char* defaultConfig =
 "FakeAppIds:\n\n"
 "#Blocks games from unlocking on wrong accounts\n"
 "DenuvoGames:\n\n"
-"#Spoof Denuvo Games owner instead of blocking them\n"
-"DenuvoSpoof: no\n\n"
 "#Pretends Steam never received an Encrypted AppTicket, so it\n"
 "#only gets saved to the cache instead of \"being used up\"\n"
 "BlockEncryptedAppTickets: no\n\n"
@@ -170,7 +168,6 @@ bool CConfig::loadSettings()
 	extendedLogging = getSetting<bool>(node, "ExtendedLogging", false);
 	logLevel = getSetting<unsigned int>(node, "LogLevel", 2);
 	blockEncryptedAppTickets = getSetting<bool>(node, "BlockEncryptedAppTickets", false);
-	denuvoSpoof = getSetting<bool>(node, "DenuvoSpoof", false);
 
 	//TODO: Create smart logging function to log them automatically via getSetting
 	g_pLog->info("DisableFamilyShareLock: %i\n", disableFamilyLock);
@@ -183,7 +180,6 @@ bool CConfig::loadSettings()
 	g_pLog->info("NotifyInit: %i\n", notifyInit);
 	g_pLog->info("ExtendedLogging: %i\n", extendedLogging);
 	g_pLog->info("LogLevel: %i\n", logLevel);
-	g_pLog->info("DenuvoSpoof: %i\n", denuvoSpoof);
 	g_pLog->info("BlockEncryptedAppTickets: %i\n", blockEncryptedAppTickets);
 
 	appIds = getList<uint32_t>(node, "AppIds");
