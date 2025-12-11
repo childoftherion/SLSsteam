@@ -81,6 +81,8 @@ static const char* defaultConfig =
 
 void CConfig::FakeGame_t::sanitizeTitle()
 {
+	//Bigger strings crash in libc.so.6. My guess is this is caused by steamclient.so being
+	//compiled with GCC 4.6.3, which uses a now deprecated ABI
 	if (title.size() > 15)
 	{
 		title = title.substr(0, 14);
