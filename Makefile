@@ -35,6 +35,7 @@ bin/SLSsteam.so: $(objs) $(libs)
 -include $(deps)
 obj/config.o: src/config.cpp res/config.yaml
 	$(shell ./embed-config.sh)
+	@mkdir -p $(dir $@)
 	$(CXX) $(CXXFLAGS) -isysteminclude -MMD -MP -c $< -o $@
 
 -include $(deps)
