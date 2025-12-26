@@ -13,8 +13,10 @@ CXXFLAGS := -O3 -flto=auto -fPIC -m32 -std=c++20 -Wall -Wextra -Wpedantic -Wno-e
 
 LDFLAGS := -shared -Wl,--no-undefined
 LDFLAGS += $(shell pkg-config --libs "openssl")
+LDFLAGS += $(shell pkg-config --libs "libcurl")
 
-DATE := $(shell date "+%Y%m%d%H%M%S")
+#DATE := $(shell date "+%Y%m%d%H%M%S")
+DATE := $(shell cat res/version.txt)
 
 ifeq ($(shell echo $$NATIVE),1)
 	CXXFLAGS += -march=native
@@ -31,6 +33,11 @@ endif
 bin/SLSsteam.so: $(objs) $(libs)
 	@mkdir -p bin
 	$(CXX) $(CXXFLAGS) $^ -o bin/SLSsteam.so $(LDFLAGS)
+
+obj/update.o: src/update.cpp res/version.txt
+	$(shell ./embed-version.sh)
+	@mkdir -p $(dir $@)
+	$(CXX) $(CXXFLAGS) -isysteminclude -MMD -MP -c $< -o $@
 
 -include $(deps)
 obj/config.o: src/config.cpp res/config.yaml
